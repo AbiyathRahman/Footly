@@ -45,9 +45,10 @@ router.get('/leagues/name/:name', async (req, res) => {
                 'x-apisports-key': process.env.FOOTBALL_DATA_API_KEY
             }
         });
+        leagueID = response.data.response.map(league => league.league.id);
         leagues = response.data.response.map(league => league.league.name);
         seasons = response.data.response.map(league => league.seasons.map(season => season.year)).flat();
-        res.json({ leagues, seasons });
+        res.json({ leagueID, leagues, seasons });
     } catch (error) {
         console.error('Error fetching competition:', error);
         res.status(500).json({ error: 'Failed to fetch competition' });
