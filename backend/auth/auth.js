@@ -26,5 +26,28 @@ router.post('/register', async (req, res) => {
     }
 });
 
+// User login
+router.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        const userCollection = db.getDb().collection('users');
+        const user = await userCollection.findOne({ username });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid username or password' });
+        }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: 'Invalid username or password' });
+        }
+        const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '1h' });
+        res.json({ token });
+    } catch (error) {
+        console.error('Error logging in user:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 module.exports = router;
 
